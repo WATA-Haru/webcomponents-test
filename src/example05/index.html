@@ -6,46 +6,50 @@
     <link rel="stylesheet" href="./style.css" />
   </head>
   <body>
-    <h1>
-      example05.slotや外部のプロパティを受け取ってみましょう!
-    </h1>
+    <h1>example05. slotや外部のプロパティを受け取ってみましょう!</h1>
 
     <div class="my-button-wrapper">
       <h2>not customElement</h2>
-      <button class="my-button">
-        I am red button!!!
-      </button>
+      <button class="my-button">I am red button!!!</button>
     </div>
 
     <h2>customElement</h2>
-    <my-button></my-button>
-    <my-button></my-button>
-    <my-button></my-button>
-    <my-button></my-button>
+
+    <!-- 属性と slot を使った例 -->
+    <my-button width="300px" height="120px">Click Me!</my-button>
+    <my-button width="150px" height="60px">Hello!</my-button>
+    <my-button>Default Size</my-button>
+    <my-button><b>HTML in slot!</b></my-button>
 
     <script>
       class MyButton extends HTMLElement {
         constructor() {
           super();
-          // Shadow DOM を作成
           this.attachShadow({ mode: "open" });
         }
 
         connectedCallback() {
+          // 属性を取得
+          const width = this.getAttribute("width") || "200px";
+          const height = this.getAttribute("height") || "100px";
+
+          // Shadow DOM の中身
           this.shadowRoot.innerHTML = `
             <style>
               .my-button {
                 font-size: 20px;
-                width: 200px;
-                height: 100px;
+                width: ${width};
+                height: ${height};
                 text-align: center;
                 background-color: green;
-                color: white
+                color: white;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
               }
             </style>
             <button type="button" class="my-button">
-              I am custom element<br>
-              I am very happy!
+              <slot>I am default text</slot>
             </button>
           `;
 
