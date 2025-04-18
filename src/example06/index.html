@@ -1,99 +1,93 @@
+
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
-    <title>Custom Element Demo (SSR Shadow DOM)</title>
-  </head>
-  <body>
-    <h1>
-      example06. JSをOFFにしてみてください、templateのshadow DOMが描画されています(SSR)
-    </h1>
-    <!-- shadow DOM の中身を template として定義 -->
-    <template id="ssr-my-button-template">
-      <style>
-        .ssr-my-button {
-          font-size: 20px;
-          width: 200px;
-          height: 100px;
-          text-align: center;
-          background-color: red;
-          color: white;
-          border: none;
-          border-radius: 8px;
-          cursor: pointer;
-        }
-      </style>
-      <button class="ssr-my-button" type="button">SSRed Button</button>
-    </template>
+    <title>Fixed Custom Element Demo (SSR Shadow DOM)</title>
+</head>
+<body>
+    <h1>example06. JSをOFFにしてみてください、templateのshadow DOMが描画されています(SSR)</h1>
 
-
-    <h1> SSR button</h1>
-    <ssr-my-button></ssr-my-button>
-    <ssr-my-button></ssr-my-button>
-    <ssr-my-button></ssr-my-button>
-
-
-    <h1> not SSR button</h1>
-    <my-button></my-button>
-    <my-button></my-button>
-    <my-button></my-button>
-    <script>
-      class MyButton extends HTMLElement {
-        constructor() {
-          super();
-          // Shadow DOM を作成
-          this.attachShadow({ mode: "open" });
-        }
-
-        connectedCallback() {
-          this.shadowRoot.innerHTML = `
+    <h1>SSR button</h1>
+    <ssr-my-button>
+        <!-- DSD用テンプレートをカスタム要素内に移動 -->
+        <template shadowrootmode="open">
             <style>
-              .my-button {
-                font-size: 20px;
-                width: 200px;
-                height: 100px;
-                text-align: center;
-                background-color: green;
-                color: white
-              }
+                .ssr-my-button {
+                    font-size: 20px;
+                    width: 200px;
+                    height: 100px;
+                    text-align: center;
+                    background-color: red;
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    cursor: pointer;
+                }
             </style>
-            <button type="button" class="my-button">
-              I am custom element<br>
-              I am very happy!
-            </button>
-          `;
+            <button class="ssr-my-button" type="button">SSRed Button</button>
+        </template>
+    </ssr-my-button>
 
-          const button = this.shadowRoot.querySelector(".my-button");
-          if (button) {
-            button.addEventListener("click", () => {
-              alert("clicked!");
-            });
-          }
+    <h1>not SSR button</h1>
+    <my-button></my-button>
+    <my-button></my-button>
+    <my-button></my-button>
+
+    <script>
+        // 非SSR用カスタム要素
+        class MyButton extends HTMLElement {
+            constructor() {
+                super();
+                this.attachShadow({ mode: "open" });
+                this.shadowRoot.innerHTML = `
+                    <style>
+                        .my-button {
+                            font-size: 20px;
+                            width: 200px;
+                            height: 100px;
+                            text-align: center;
+                            background-color: green;
+                            color: white;
+                        }
+                    </style>
+                    <button type="button" class="my-button">
+                        I am custom element<br>
+                        I am very happy!
+                    </button>
+                `;
+            }
+
+            connectedCallback() {
+                this.shadowRoot.querySelector('.my-button')
+                    .addEventListener('click', () => {
+                        alert('clicked!');
+                    });
+            }
         }
-      }
 
-      window.customElements.define("my-button", MyButton)
-      class SSRMyButton extends HTMLElement {
-        constructor() {
-          super();
-          this.attachShadow({ mode: "open" });
+        // SSR用カスタム要素
+        class SSRMyButton extends HTMLElement {
+            constructor() {
+                super();
+                // DSDが有効な場合はShadow Rootが既に存在する
+                if (!this.shadowRoot) {
+                    this.attachShadow({ mode: "open" });
+                }
+            }
+
+            connectedCallback() {
+                // 既存のボタンにイベントリスナーを追加
+                this.shadowRoot.addEventListener('click', (e) => {
+                    if (e.target.matches('.ssr-my-button')) {
+                        alert('SSRed Shadow DOM clicked!');
+                    }
+                });
+            }
         }
 
-        connectedCallback() {
-          const template = document.getElementById("ssr-my-button-template");
-          const content = template.content.cloneNode(true);
-          this.shadowRoot.appendChild(content);
-
-          const button = this.shadowRoot.querySelector(".ssr-my-button");
-          if (button) {
-            button.addEventListener("click", () => {
-              alert("SSRed Shadow DOM clicked!");
-            });
-          }
-        }
-      }
-
-      window.customElements.define("ssr-my-button", SSRMyButton);
+        customElements.define('my-button', MyButton);
+        customElements.define('ssr-my-button', SSRMyButton);
     </script>
-  </body>
+</body>
 </html>
