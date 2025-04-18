@@ -2,27 +2,41 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Custom Element Demo</title>
-    <link rel="stylesheet" href="./style.css" />
+    <title>Custom Element Demo (SSR Shadow DOM)</title>
   </head>
   <body>
     <h1>
       example06. JSをOFFにしてみてください、templateのshadow DOMが描画されています(SSR)
     </h1>
+    <!-- shadow DOM の中身を template として定義 -->
+    <template id="ssr-my-button-template">
+      <style>
+        .ssr-my-button {
+          font-size: 20px;
+          width: 200px;
+          height: 100px;
+          text-align: center;
+          background-color: red;
+          color: white;
+          border: none;
+          border-radius: 8px;
+          cursor: pointer;
+        }
+      </style>
+      <button class="ssr-my-button" type="button">SSRed Button</button>
+    </template>
 
-    <div class="my-button-wrapper">
-      <h2>not customElement</h2>
-      <button class="my-button">
-        I am red button!!!
-      </button>
-    </div>
 
-    <h2>customElement</h2>
-    <my-button></my-button>
-    <my-button></my-button>
-    <my-button></my-button>
-    <my-button></my-button>
+    <h1> SSR button</h1>
+    <ssr-my-button></ssr-my-button>
+    <ssr-my-button></ssr-my-button>
+    <ssr-my-button></ssr-my-button>
 
+
+    <h1> not SSR button</h1>
+    <my-button></my-button>
+    <my-button></my-button>
+    <my-button></my-button>
     <script>
       class MyButton extends HTMLElement {
         constructor() {
@@ -58,7 +72,28 @@
         }
       }
 
-      window.customElements.define("my-button", MyButton);
+      window.customElements.define("my-button", MyButton)
+      class SSRMyButton extends HTMLElement {
+        constructor() {
+          super();
+          this.attachShadow({ mode: "open" });
+        }
+
+        connectedCallback() {
+          const template = document.getElementById("ssr-my-button-template");
+          const content = template.content.cloneNode(true);
+          this.shadowRoot.appendChild(content);
+
+          const button = this.shadowRoot.querySelector(".ssr-my-button");
+          if (button) {
+            button.addEventListener("click", () => {
+              alert("SSRed Shadow DOM clicked!");
+            });
+          }
+        }
+      }
+
+      window.customElements.define("ssr-my-button", SSRMyButton);
     </script>
   </body>
 </html>
