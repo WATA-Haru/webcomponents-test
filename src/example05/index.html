@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Custom Element Demo</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <h1>
+      example05.slotや外部のプロパティを受け取ってみましょう!
+    </h1>
+
+    <div class="my-button-wrapper">
+      <h2>not customElement</h2>
+      <button class="my-button">
+        I am red button!!!
+      </button>
+    </div>
+
+    <h2>customElement</h2>
+    <my-button></my-button>
+    <my-button></my-button>
+    <my-button></my-button>
+    <my-button></my-button>
+
+    <script>
+      class MyButton extends HTMLElement {
+        constructor() {
+          super();
+          // Shadow DOM を作成
+          this.attachShadow({ mode: "open" });
+        }
+
+        connectedCallback() {
+          this.shadowRoot.innerHTML = `
+            <style>
+              .my-button {
+                font-size: 20px;
+                width: 200px;
+                height: 100px;
+                text-align: center;
+                background-color: green;
+                color: white
+              }
+            </style>
+            <button type="button" class="my-button">
+              I am custom element<br>
+              I am very happy!
+            </button>
+          `;
+
+          const button = this.shadowRoot.querySelector(".my-button");
+          if (button) {
+            button.addEventListener("click", () => {
+              alert("clicked!");
+            });
+          }
+        }
+      }
+
+      window.customElements.define("my-button", MyButton);
+    </script>
+  </body>
+</html>

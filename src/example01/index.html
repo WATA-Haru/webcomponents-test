@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Custom Element Demo</title>
+  </head>
+  <body>
+    <h1>example01. シンプルなカスタムエレメントを作ってみます。</h1>
+    <h2>custom element</h2>
+    <my-button></my-button> <my-button></my-button>
+    <my-button></my-button>
+    <my-button></my-button>
+
+    <script>
+      class MyButton extends HTMLElement {
+        constructor() {
+          super();
+        }
+        connectedCallback() {
+          this.innerHTML = `
+            <style>
+              .my-button {
+                font-size: 20px;
+                width: 200px;
+                height: 100px;
+                text-align: center;
+                background-color: green;
+                color: white
+              }
+            </style>
+            <button type="button" class="my-button">
+              I am custom element
+            </button>
+          `;
+
+          const button = this.querySelector(".my-button");
+          if (button) {
+            button.addEventListener("click", () => {
+              alert("clicked!");
+            });
+          }
+        }
+      }
+
+      window.customElements.define("my-button", MyButton);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Custom Element Demo</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <h1>
+      example02. このままだとcssを外部のクラス名と衝突する恐れがあります。
+    </h1>
+
+    <div class="my-button-wrapper">
+      <h2>かわいそうに</h2>
+      <button class="my-button">
+        I am red button. <br />I dont like custom Element.
+      </button>
+    </div>
+
+    <h2>customElement</h2>
+    <my-button></my-button>
+    <my-button></my-button>
+    <my-button></my-button>
+    <my-button></my-button>
+
+    <script>
+      class MyButton extends HTMLElement {
+        constructor() {
+          super();
+        }
+        connectedCallback () {
+          this.innerHTML = `
+            <style>
+              .my-button {
+                font-size: 20px;
+                width: 200px;
+                height: 100px;
+                text-align: center;
+                background-color: green;
+                color: white
+              }
+            </style>
+            <button type="button" class="my-button">
+              I am custom element<br>
+              I am very happy!
+            </button>
+          `;
+          const button = this.querySelector(".my-button");
+          if (button) {
+            button.addEventListener("click", () => {
+              alert("clicked!");
+            });
+          }
+        }
+      }
+
+      window.customElements.define("my-button", MyButton);
+    </script>
+  </body>
+</html>
