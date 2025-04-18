@@ -6,63 +6,58 @@
     <link rel="stylesheet" href="./style.css" />
   </head>
   <body>
-    <h1>example05. slotや外部のプロパティを受け取ってみましょう!</h1>
+    <h1>
+      example05.丸パクリですが...すごい例です
+      <a href="https://griponminds.jp/blog/learn-html-web-components/">
+        https://griponminds.jp/blog/learn-html-web-components/
+      </a>
+    </h1>
+    <!-- HTML -->
+    <custom-range>
+      <label for="c-slider">Label</label>
+      <div class="c-slider-bg">
+        <input type="range" value="50" min="0" max="100" id="c-slider" />
+      </div>
+      <output for="c-slider">50</output>
+    </custom-range>
 
-    <div class="my-button-wrapper">
-      <h2>not customElement</h2>
-      <button class="my-button">I am red button!!!</button>
-    </div>
-
-    <h2>customElement</h2>
-
-    <!-- 属性と slot を使った例 -->
-    <my-button width="300px" height="120px">Click Me!</my-button>
-    <my-button width="150px" height="60px">Hello!</my-button>
-    <my-button>Default Size</my-button>
-    <my-button><b>HTML in slot!</b></my-button>
-
+    <!-- JS -->
     <script>
-      class MyButton extends HTMLElement {
+      class CustomRange extends HTMLElement {
         constructor() {
           super();
-          this.attachShadow({ mode: "open" });
+
+          const range = this.querySelector('input[type="range"]');
+
+          if (!range) return;
+
+          const min = range?.getAttribute("min") ?? "0";
+          const max = range?.getAttribute("max") ?? "100";
+          const output = this.querySelector("output");
+
+          this.style.setProperty("--progress", range.value);
+          this.changeProgressStyle(range.value, min, max);
+          this.changeOutputValue(range.value, output);
+
+          range.addEventListener("input", () => {
+            this.changeProgressStyle(range.value, min, max);
+            this.changeOutputValue(range.value, output);
+          });
         }
 
-        connectedCallback() {
-          // 属性を取得
-          const width = this.getAttribute("width") || "200px";
-          const height = this.getAttribute("height") || "100px";
+        // 1. スライダーの値に応じてトラックの長さを変更
+        changeProgressStyle(value, min, max) {
+          const progress =
+            ((Number(value) - Number(min)) / (Number(max) - Number(min))) * 100;
+          this.style.setProperty("--progress", progress);
+        }
 
-          // Shadow DOM の中身
-          this.shadowRoot.innerHTML = `
-            <style>
-              .my-button {
-                font-size: 20px;
-                width: ${width};
-                height: ${height};
-                text-align: center;
-                background-color: green;
-                color: white;
-                border: none;
-                border-radius: 8px;
-                cursor: pointer;
-              }
-            </style>
-            <button type="button" class="my-button">
-              <slot>I am default text</slot>
-            </button>
-          `;
-
-          const button = this.shadowRoot.querySelector(".my-button");
-          if (button) {
-            button.addEventListener("click", () => {
-              alert("clicked!");
-            });
-          }
+        // 2. スライダーの値をアウトプットして表示
+        changeOutputValue(value, output) {
+          output.value = String(value);
         }
       }
-
-      window.customElements.define("my-button", MyButton);
+      customElements.define("custom-range", CustomRange);
     </script>
   </body>
 </html>
